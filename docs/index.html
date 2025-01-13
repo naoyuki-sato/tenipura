@@ -1,43 +1,22 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Vue SPA Example</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://unpkg.com/vue-router@4"></script>
-</head> 
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3.x/dist/vuetify.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" />
+  <title>ダブルス 乱数表</title>
+</head>
+
 <body>
-  <div id="app">
-    <router-view></router-view>
-  </div>
+  <div id="app"></div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.x/dist/vuetify.min.js"></script>
+  <script src="https://unpkg.com/vue-router@4"></script>
 
   <script>
-    function getDoubleMatches(arr) {
-      const result = [];
-      const seenPlayers = new Set();
-
-      // Shuffle the array to ensure randomness
-      arr = arr.sort(() => Math.random() - 0.5);
-
-      for (let i = 0; i < arr.length; i++) {
-        for (let j = i + 1; j < arr.length; j++) {
-          for (let k = 0; k < arr.length; k++) {
-            if (k === i || k === j || seenPlayers.has(arr[i]) || seenPlayers.has(arr[j])) continue;
-            for (let l = k + 1; l < arr.length; l++) {
-              if (l === i || l === j || seenPlayers.has(arr[k]) || seenPlayers.has(arr[l])) continue;
-              result.push([[arr[i], arr[j]], [arr[k], arr[l]]]);
-              seenPlayers.add(arr[i]);
-              seenPlayers.add(arr[j]);
-              seenPlayers.add(arr[k]);
-              seenPlayers.add(arr[l]);
-              // After a match, reset the seenPlayers set
-              seenPlayers.clear();
-            }
-          }
-        }
-      }
-      return result;
-    }
-
     function shuffleArray(array) {
       let currentIndex = array.length, randomIndex;
 
@@ -50,85 +29,118 @@
       return array;
     } 
 
-    const PageA = {
+    const { createApp, ref } = Vue;
+    const { createVuetify } = Vuetify;
+    const { createRouter, createWebHistory } = VueRouter;
+
+    const vuetify = createVuetify();
+
+    const pageSelectMember = {
       template: `
-        <div>
-          <h3>名前を選択してください。</h3>
-          <ul>
-          <table>
-            <thead>
-              <tr>
-                <th>名前</th>
-                <th>選択</th>
-              </tr>
-            </thead>
-          <tbody>
-            <tr v-for="name in names" :key="name">
-              <td><label :for="name">{{ name }}</label></td>
-              <td>
-                <input type="checkbox" :id="name" v-model="selectedNames" :value="name">
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        </ul>
-        <br>
-        <div v-if="selectedNames.length < 4" style="color: red;">少なくとも4つの名前を選択してください。</div>
-        <div v-else>
-          <router-link to="/pageb">ダブルス組み合わせへ</router-link>
-        </div>
-      `,
+        <v-container>
+          <p>コート数:</p>
+          <v-radio-group v-model="radios" inline>
+            <v-radio label="1コート" value="1" color='primary'></v-radio>
+            <v-radio label="2コート" value="2" color='primary'></v-radio>
+            <v-radio label="3コート" value="3" color='primary'></v-radio>
+          </v-radio-group>
+          <v-table>
+              <thead>
+                  <tr>
+                      <th class="text-left">選択</th>
+                      <th class="text-left">名前</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr v-for="name in member_name_list" :key="name">
+                    <td>
+                      <input type="checkbox" :id="name" v-model="selectedNames" :value="name">
+                    </td>
+                    <td><label :for="name">{{ name }}</label></td>
+                  </tr>
+              </tbody>
+          </v-table>
+          <p> {{ radios*4 }}名以上を選択してください。</p>
+          <v-btn class="text-none text-subtitle-1" color="#5865f2" variant="flat" :disabled="selectedNames.length < 4" @click="goToGameOrder">
+            ゲーム乱数表 表示
+          </v-btn>
+        </v-container>
+            `,
       data() {
         return {
-          names: ['田中', '佐藤', '鈴木', '高橋', '伊藤', '渡辺', '山本'],
-          selectedNames: []
+          member_name_list: [
+            "田中",
+            "佐藤",
+            "鈴木",
+            "高橋",
+            "伊藤",
+            "渡辺",
+            "山本",
+          ],
+          selectedNames: [],
+          radios: '1',
+          btn_disabled_flg: true
         };
       },
       watch: {
         selectedNames: {
           handler(newVal) {
-            localStorage.setItem('selectedNames', JSON.stringify(newVal));
+            localStorage.setItem("selectedNames", JSON.stringify(newVal));
           },
-          deep: true
-        }
+          deep: true,
+        },
       },
       mounted() {
-        const storedNames = localStorage.getItem('selectedNames');
+        const storedNames = localStorage.getItem("selectedNames");
         if (storedNames) {
           this.selectedNames = JSON.parse(storedNames);
         }
-      }
+      },
+      methods: {
+        goToGameOrder() {
+          this.$router.push('/page-game-order');
+        }
+      },
     };
 
-    const PageB = {
+    // const pageGameOrder = { template: "<div><h1>Game Oder Page</h1></div>" };
+
+    const pageGameOrder = {
       template: `
-        <div>
-          <h3>試合順</h3>
-          <ul>
-            <table>
-              <thead>
-                <tr>
-                  <th>番号</th>
-                  <th>名前 1</th>
-                  <th>名前 2</th>
-                  <th>名前 3</th>
-                  <th>名前 4</th>
-                </tr>
-              </thead>
-          <tbody>
-            <tr v-for="(match, matchIndex ) in matches" :key="matchIndex">
-              <td align="center">{{ matchIndex + 1 }}</td>
-              <td v-for="i in match" :key="i" align="center">
-                {{ gameNames[i - 1]}}{{i}}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        </ul>
-          <br>
-          <router-link to="/">メンバー選択へ</router-link>
-        </div>
-      `,
+ <v-container>
+        <p>試合順</p>
+        <v-radio-group v-model="selectedMatch">
+            <v-table>
+                <thead>
+                    <tr>
+                        <th class="text-center">選択</th>
+                        <th class="text-center">番号</th>
+                        <th class="text-center">名前 1</th>
+                        <th class="text-center">名前 2</th>
+                        <th class="text-center">名前 3</th>
+                        <th class="text-center">名前 4</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(match, matchIndex) in matches" :key="matchIndex">
+                        <td class="text-center d-flex justify-center align-center">
+                            <v-radio :value="matchIndex"></v-radio>
+                            
+                        </td>
+                        <td class="text-center">{{ matchIndex + 1 }}</td>
+                        <td v-for="i in match" :key="i" class="text-center">
+                            {{ gameNames[i - 1] || '-' }}
+                        </td>
+                    </tr>
+                </tbody>
+            </v-table>
+        </v-radio-group>
+        <p v-if="selectedMatch !== null">選択された試合: {{ selectedMatch + 1 }}</p>
+        <v-btn class="text-none text-subtitle-1" color="#5865f2" variant="flat" @click="goToSelectMember">
+            メンバー選択へ
+        </v-btn>
+    </v-container>
+          `,
       data() {
         return {
           selectedNames: [],
@@ -141,6 +153,7 @@
             {'num': 7, 'list': [[1,2,3,4], [5,6,1,7], [2,3,5,7], [1,4,2,6], [3,7,4,6], [2,5,1,3], [4,5,6,7], [1,6,2,7], [3,5,2,4], [1,5,3,6], [4,7,1,2], [3,5,4,6], [2,7,3,6], [1,4,5,7], [2,6,4,5]]},
             {'num': 8, 'list': [[1,2,3,4], [5,6,7,8], [1,3,5,7], [2,4,6,8], [1,5,4,8], [2,3,6,7], [1,6,4,7], [2,5,3,8], [1,7,2,8], [3,5,4,6], [1,8,3,6], [2,7,4,5], [1,4,3,7], [2,6,5,8], [1,2,5,6]]}
           ],
+          selectedMatch: null,
         };
       },
       mounted() {
@@ -168,22 +181,153 @@
           }
         }
         */
-      }
+      },
+      methods: {
+        goToSelectMember() {
+          this.$router.push('/');
+        }
+      },
+
+    };
+
+
+
+    const pageSetMember = {
+      template: `
+            <v-container>
+              <div>メンバー追加</div>
+              <form>
+                <v-text-field
+                  v-model="name"
+                      :error-messages="nameErrors"
+                      :counter="10"
+                      label="Name"
+                      required
+                      @input="$v.name.$touch()"
+                      @blur="$v.name.$touch()"
+                >
+                </v-text-field>
+                <v-btn
+                      class="text-none text-subtitle-1" color="#5865f2" variant="flat"
+                      @click="submit"
+                >
+                      追加
+                    </v-btn>
+                  </form>
+                  <br>
+                  <v-divider class="border-opacity-75"></v-divider>
+                  <br>
+                  <div>メンバー削除</div>
+                    <v-table>
+                        <thead>
+                            <tr>
+                                <th class="text-left">選択</th>
+                                <th class="text-left">名前</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="name in member_name_list" :key="name">
+                              <td>
+                                <input type="checkbox" :id="name" v-model="selectedNames" :value="name">
+                              </td>
+                              <td><label :for="name">{{ name }}</label></td>
+                            </tr>
+                        </tbody>
+                    </v-table>
+                    <v-btn class="text-none text-subtitle-1" color="#5865f2" variant="flat">
+                      削除
+                    </v-btn>
+                </v-container>
+            `,
+      data() {
+        return {
+          member_name_list: [
+            "田中",
+            "佐藤",
+            "鈴木",
+            "高橋",
+            "伊藤",
+            "渡辺",
+            "山本",
+          ],
+          selectedNames: [],
+        };
+      },
+      watch: {
+        selectedNames: {
+          handler(newVal) {
+            localStorage.setItem("selectedNames", JSON.stringify(newVal));
+          },
+          deep: true,
+        },
+      },
+      mounted() {
+        const storedNames = localStorage.getItem("selectedNames");
+        if (storedNames) {
+          this.selectedNames = JSON.parse(storedNames);
+        }
+      },
     };
 
     const routes = [
-      { path: '/', component: PageA },
-      { path: '/pageb', component: PageB },
+      { path: "/", component: pageSelectMember },
+      //{ path: '/', component: pageSetMember },
+      { path: "/page-game-order", component: pageGameOrder },
+      { path: "/page-set-member", component: pageSetMember },
     ];
 
-    const router = VueRouter.createRouter({
-      history: VueRouter.createWebHashHistory(),
+    const router = createRouter({
+      history: createWebHistory(),
       routes,
     });
 
-    const app = Vue.createApp({});
+    const app = createApp({
+      setup() {
+        const drawer = ref(false);
+        return { drawer };
+      },
+      template: `
+                <v-app>
+                    <v-app-bar app>
+                        <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+                        <v-toolbar-title>マイサークル ダブルス乱数表</v-toolbar-title>
+                    </v-app-bar>
+                    <v-navigation-drawer v-model="drawer" temporary>
+                        <v-list dense nav>
+                            <v-list-item :to="{ path: '/' }">
+                              <v-list-item-avatar>
+                                <v-icon>mdi-account</v-icon>
+                              </v-list-item-avatar>
+                              <v-list-item-title>メンバー選択</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item :to="{ path: '/page-game-order' }">
+                              <v-list-item-avatar>
+                                <v-icon>mdi-tennis</v-icon>
+                              </v-list-item-avatar>
+                              <v-list-item-title>試合組み合わせ</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item :to="{ path: '/page-set-member' }">
+                              <v-list-item-avatar>
+                                <v-icon>mdi-account-cog</v-icon>
+                              </v-list-item-avatar>
+                              <v-list-item-title>メンバー設定</v-list-item-title>
+                            </v-list-item>
+                        </v-list>
+                    </v-navigation-drawer>
+                    <v-main>
+                        <router-view></router-view>
+                    </v-main>
+                </v-app>
+            `,
+    });
+
+    app.use(vuetify);
     app.use(router);
-    app.mount('#app');
+    app.mount("#app");
+
+    // 初期ルートへのリダイレクトを追加
+    router.push("/"); // これが重要！
   </script>
 </body>
+
 </html>
