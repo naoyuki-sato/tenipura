@@ -39,70 +39,87 @@
       template: `
         <v-container>
           <p>コート数:</p>
-          <v-radio-group v-model="radios" inline>
-            <v-radio label="1コート" value="1" color='primary'></v-radio>
+          <v-radio-group v-model="court_num" inline>
+            <v-radio label="1コート" value='1' color='primary'></v-radio>
             <v-radio label="2コート" value="2" color='primary'></v-radio>
             <v-radio label="3コート" value="3" color='primary'></v-radio>
           </v-radio-group>
           <div class="font-weight-bold">※ 現在は1コートのみ対応</div>
-          <v-layout justify-center>
-          <v-table>
-              <thead>
-                  <tr>
-                      <th class="text-left">選択</th>
-                      <th class="text-left">名前</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  <tr v-for="name in member_name_list" :key="name">
-                    <td>
-                      <input type="checkbox" :id="name" v-model="selectedNames" :value="name">
-                    </td>
-                    <td><label :for="name">{{ name }}</label></td>
-                  </tr>
-              </tbody>
-          </v-table>
-          </v-layout>
-          <p> {{ radios*4 }}名以上を選択してください。</p>
-          <v-btn class="text-none text-subtitle-1" color="#5865f2" variant="flat" :disabled="selectedNames.length < 4" @click="goToGameOrder">
-            ゲーム乱数表 表示
-          </v-btn>
-        </v-container>
+          <v-divider class="border-opacity-75"></v-divider>
+          <br>
+          <p>参加人数:</p>
+          <v-radio-group v-model="member_num" inline>
+            <v-radio label=" 4名" value="4"></v-radio>
+            <v-radio label=" 5名" value="5"></v-radio>
+            <v-radio label=" 6名" value="6"></v-radio>
+            <v-radio label=" 7名" value="7"></v-radio>
+            <v-radio label=" 8名" value="8"></v-radio>
+            <v-radio label=" 9名" value="9"></v-radio>
+            <v-radio label="10名" value="10"></v-radio>
+            <v-radio label="11名" value="11"></v-radio>
+            <v-radio label="12名" value="12"></v-radio>
+          </v-radio-group>
+          <v-divider class="border-opacity-75"></v-divider>
+          <p> {{ court_num*4 }}名以上を選択してください。</p>
+                  <v-radio-group v-model="selectedMatch">
+        </v-radio-group>
+<v-radio-group v-model="selectedMatch" v-if="selectedList">
+      <v-layout justify-center>
+        <v-table>
+          <thead>
+            <tr>
+              <th class="text-center">選択</th>
+              <th class="text-center">試合</th>
+              <th class="text-center" v-for="n in selectedList[0].length" :key="n">プレイヤー{{n}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(match, matchIndex) in selectedList" :key="matchIndex">
+              <td>
+                <v-radio :value="matchIndex"></v-radio>
+              </td>
+              <td class="text-center">{{ matchIndex + 1 }}</td>
+              <td v-for="player in match" :key="player" class="text-center">
+                {{ player }}
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+      </v-layout>
+    </v-radio-group>
+</v-container>
             `,
       data() {
         return {
-          member_name_list: [
-            "酒井",
-            "三浦",
-            "渡辺",
-            "小西",
-            "山根",
-            "太田",
-            "佐藤",
+          combination_data : [
+            {'num': 4, 'list': [[1,2,3,4], [1,3,2,4], [1,4,2,3]]},
+            {'num': 5, 'list': [[1,2,3,4], [1,5,2,3], [1,4,2,5], [1,3,4,5], [2,4,3,5], [1,3,2,4], [3,5,1,2], [4,5,1,2], [3,4,1,5], [2,3,4,5], [1,4,2,3], [2,5,1,3], [2,4,1,5], [3,5,1,4], [2,5,3,4]]},
+            {'num': 6, 'list': [[1,2,3,4], [5,6,1,3], [2,5,4,6], [1,6,2,3], [2,4,1,5], [3,6,4,5], [1,4,2,6], [3,5,1,2], [3,4,5,6], [1,3,2,5], [2,4,1,6], [3,5,4,6], [1,5,2,6], [2,3,4,5], [1,4,3,6]]},
+            {'num': 7, 'list': [[1,2,3,4], [5,6,1,7], [2,3,5,7], [1,4,2,6], [3,7,4,6], [2,5,1,3], [4,5,6,7], [1,6,2,7], [3,5,2,4], [1,5,3,6], [4,7,1,2], [3,5,4,6], [2,7,3,6], [1,4,5,7], [2,6,4,5]]},
+            {'num': 8, 'list': [[1,2,3,4], [5,6,7,8], [1,3,5,7], [2,4,6,8], [1,5,4,8], [2,3,6,7], [1,6,4,7], [2,5,3,8], [1,7,2,8], [3,5,4,6], [1,8,3,6], [2,7,4,5], [1,4,3,7], [2,6,5,8], [1,2,5,6]]}
           ],
-          selectedNames: [],
-          radios: '1',
-          btn_disabled_flg: true
+          court_num: '1',
+          member_num: '4',
+          btn_disabled_flg: true,
+          selectedMatch: 0,
+          radioStyle: {
+        fontFamily: 'Roboto, sans-serif', // Vuetifyのデフォルトフォント
+        fontSize: '16px', // Vuetifyのデフォルトサイズから調整
+      },
+      containerStyle: {
+        fontFamily: 'Roboto, sans-serif',
+        fontSize: '16px',
+      }
         };
       },
-      watch: {
-        selectedNames: {
-          handler(newVal) {
-            localStorage.setItem("selectedNames", JSON.stringify(newVal));
-          },
-          deep: true,
-        },
+      computed: {
+        selectedList() {
+        const selectedData = this.combination_data.find(data => data.num === parseInt(this.member_num, 10));
+        return selectedData ? selectedData.list : null;
+        }
       },
       mounted() {
-        const storedNames = localStorage.getItem("selectedNames");
-        if (storedNames) {
-          this.selectedNames = JSON.parse(storedNames);
-        }
-      },
-      methods: {
-        goToGameOrder() {
-          this.$router.push('/page-game-order');
-        }
+        this.containerStyle = this.radioStyle;
       },
     };
 
