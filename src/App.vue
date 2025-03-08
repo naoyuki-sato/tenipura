@@ -411,23 +411,23 @@
                     <v-radio :value="n" :label="`${n}`"></v-radio>
                   </v-radio-group>
                 </td>
-                <td>
+                <td class="large-text">
                   {{ doubles_pair_court1[n - 1][0] }},
                   {{ doubles_pair_court1[n - 1][1] }}
                 </td>
                 <td>vs</td>
-                <td>
+                <td class="large-text">
                   {{ doubles_pair_court1[n - 1][2] }},
                   {{ doubles_pair_court1[n - 1][3] }}
                 </td>
-              </tr>
+              </tr class="large-text">
               <tr v-if="court_num > 1">
-                <td>
+                <td class="large-text">
                   {{ doubles_pair_court2[n - 1][0] }},
                   {{ doubles_pair_court2[n - 1][1] }}
                 </td>
                 <td>vs</td>
-                <td>
+                <td class="large-text">
                   {{ doubles_pair_court2[n - 1][2] }},
                   {{ doubles_pair_court2[n - 1][3] }}
                 </td>
@@ -439,3 +439,9 @@
     </v-main>
   </v-app>
 </template>
+
+<style>
+  .large-text {
+    font-size: 1.3em;
+  }
+</style>
