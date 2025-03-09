@@ -27,7 +27,7 @@
     if (member_num.value === 4) {
       max_game_num.value = 3;
     } else {
-      max_game_num.value = 5;
+      max_game_num.value = 8;
     }
   });
 
