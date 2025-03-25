@@ -11,6 +11,8 @@
 
   const max_game_num = ref(3);
 
+  const random = ref('しない')
+
   watch(court_num, (newVal) => {
     console.log(court_num.value);
     if (court_num.value === 1) {
@@ -39,12 +41,19 @@
   ]);
   const doubles_pair_court2 = ref([]);
 
-  watch([court_num, member_num], () => {
+
+  watch([court_num, member_num, random], () => {
+    console.log('--------------------------');
+
     selectedMatch.value = 1;
     doubles_pair_court1.value.length = 0;
     doubles_pair_court2.value.length = 0;
 
     doubles_pair.value = get_doubles_data(court_num, member_num);
+    if (random.value == 'する') {
+      shuffle_doubles_data(court_num.value, member_num.value, doubles_pair.value);
+    }
+    
     if (court_num.value > 1) {
       for (let i = 0; i < doubles_pair.value.length; i++) {
         doubles_pair_court1.value.push(doubles_pair.value[i][0]);
@@ -53,8 +62,43 @@
     } else {
       doubles_pair_court1.value = doubles_pair.value;
     }
-    console.log('--------------------------');
   });
+
+  function shuffle_array(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+  function shuffle_doubles_data(court_num, member_num, doubles_pair) {
+    var member_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    member_list = member_list.slice(0, member_num);
+    var shuffle_list = shuffle_array(member_list);
+    console.log('court_num: ', court_num);
+    console.log('member_num: ', member_num);
+    console.log('doubles_pair: ', doubles_pair);
+    console.log('member_list: ', member_list);
+    console.log('shuffle_list: ', shuffle_list);
+
+    if (court_num > 1) {
+      for (let i = 0; i < doubles_pair.length; i++) {
+        for (let j = 0; j < doubles_pair[i].length; j++) {
+          for (let k = 0; k < doubles_pair[i][j].length; k++) {
+            doubles_pair[i][j][k] = shuffle_list[doubles_pair[i][j][k] - 1];
+          }
+        }
+      }
+    } else {
+      for (let i = 0; i < doubles_pair.length; i++) {
+        for (let j = 0; j < doubles_pair[i].length; j++) {
+          doubles_pair[i][j] = shuffle_list[doubles_pair[i][j] - 1];
+        }
+      }
+    }
+    console.log('doubles_pair: ', doubles_pair);
+  }
 
   function get_doubles_data(court_num, member_num) {
     console.log(court_num.value);
@@ -392,6 +436,18 @@
             color="primary"
           ></v-radio>
         </v-radio-group>
+    
+        <p><strong>順番をランダム</strong></p>
+            <v-switch
+    v-model="random"
+    :label="`${random}`"
+    false-value="しない"
+    true-value="する"
+    color="primary"
+    hide-details
+  ></v-switch>
+  <br/>
+        
 
         <p><strong>試合順</strong></p>
         <v-table v-if="doubles_pair_court1 !== null">
