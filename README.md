@@ -6,3 +6,10 @@
 - index.htmlの準備
 - レポジトリの「settings」→ 「Pages」→ 「Branch」でどこをRootにするかせってする
 - 少し時間をおいて再度見ると上の方法「visit site」のボタンが出てくる
+
+# VueでBuildしたファイルをDocs下にコピーするとき
+- 以下のようなところが、/assets/になっているとエラーになるので/tenipura/assets/とする
+```
+<script type="module" crossorigin src="/tenipura/assets/index-D2DNfB8q.js"></script>
+<link rel="stylesheet" crossorigin href="/tenipura/assets/index-RqBkh1U7.css" />
+```
